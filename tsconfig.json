@@ -1,0 +1,17 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "types": ["node", "vitest"],
+    "rootDir": "src",
+    "sourceMap": true,
+    "target": "esnext",
+    "module": "nodenext",
+    "strict": true,
+    "jsx": "react",
+    "noUncheckedIndexedAccess": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "allowSyntheticDefaultImports": true,
+    "outDir": "dist"
+  },
+  "exclude": ["node_modules", "dist"]
+}

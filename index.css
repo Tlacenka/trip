@@ -1,0 +1,30 @@
+#root {
+  padding-top: 50px;
+  padding-bottom: 50px;
+  --pico-font-family: 'Open Sans';
+  --pico-h1-color: #ce377d;
+  --pico-h2-color: #ce377d;
+  --pico-h3-color: #ce377d;
+  --pico-border-radius: 1rem;
+
+}
+
+b,
+s {
+  color: #2d2e83
+}
+
+th {
+  --pico-color: #2d2e83;
+}
+
+select, input:not([type='checkbox']) {
+  width: 200px !important;
+}
+
+#form-group {
+  display: flex;
+  flex-direction: row;
+  justify-content: left;
+  align-items: center;
+}
