@@ -1,0 +1,14 @@
+zerops:
+  - setup: static
+    build:
+      base: nodejs@20
+
+      buildCommands:
+        - npm i
+        - npm run build
+
+      deployFiles:
+        - dist/~
+
+    run:
+      base: static
