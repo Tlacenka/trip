@@ -23,7 +23,7 @@ export const Info: React.FC = () => {
           </tr>
           <tr>
             <td>Děti (&lt;15 let)</td>
-            <td>66% sleva</td>
+            <td>67% sleva</td>
           </tr>
           <tr>
             <td>Senioři (&#8805;75 let)</td>

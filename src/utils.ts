@@ -6,20 +6,41 @@ import {
   SPECIAL_CONNECTIONS,
 } from './constants';
 
-export function capitalise<T extends string>(text: T): Capitalize<T> {
-  return `${text.charAt(0).toLocaleUpperCase()}${text
-    .slice(1)
-    .toLowerCase()}` as Capitalize<T>;
+export function calculateTicketStats(input: {
+  from: City;
+  to: City;
+  age: number | null;
+  luggage: boolean;
+}) {
+  const { from, to, age, luggage } = input;
+
+  const { duration, price } =
+    isFinal(from) && isFinal(to)
+      ? getDiscountedPathStats(from, to)
+      : getFastestPath(from, to);
+
+  const discountedPrice = includeDiscounts(price, age);
+  const luggagePrice = luggage ? calculateLuggagePrice(from, to) : 0;
+  const finalPrice =
+    discountedPrice != null ? discountedPrice + luggagePrice : null;
+
+  return { duration, price: finalPrice };
 }
-/**
- *
- * @param city current city node
- * @returns all direct neighbours of a given city
- */
-export function getNeighbours(city: City) {
-  return DIRECT_CONNECTIONS.filter(({ cities }) => cities.includes(city)).map(
-    ({ cities: [city1, city2] }) => (city1 === city ? city2 : city1)
-  );
+
+export function isFinal(city: City): city is FinalCity {
+  return ['brno', 'praha', 'ostrava'].includes(city);
+}
+
+export function getDiscountedPathStats(from: FinalCity, to: FinalCity) {
+  if (from === to) {
+    return { duration: 0, price: 0 };
+  }
+
+  const connection = SPECIAL_CONNECTIONS.find(
+    ({ cities }) => cities.includes(from) && cities.includes(to)
+  )!;
+
+  return { duration: connection.duration, price: connection.price };
 }
 
 type CityNode = {
@@ -79,42 +100,15 @@ export function getFastestPath(from: City, to: City) {
   return { duration: destination.duration, price: destination.price };
 }
 
-export function calculateTicketStats(input: {
-  from: City;
-  to: City;
-  age: number | null;
-  luggage: boolean;
-}) {
-  const { from, to, age, luggage } = input;
-
-  const { duration, price } =
-    isFinal(from) && isFinal(to)
-      ? getDiscountedPath(from, to)
-      : getFastestPath(from, to);
-
-  const discountedPrice = includeDiscounts(price, age);
-  const finalPrice =
-    discountedPrice != null
-      ? discountedPrice + calculateLuggagePrice(luggage, from, to)
-      : null;
-
-  return { duration, price: finalPrice };
-}
-
-function isFinal(city: City): city is FinalCity {
-  return ['brno', 'praha', 'ostrava'].includes(city);
-}
-
-export function getDiscountedPath(from: FinalCity, to: FinalCity) {
-  if (from === to) {
-    return { duration: 0, price: 0 };
-  }
-
-  const connection = SPECIAL_CONNECTIONS.find(
-    ({ cities }) => cities.includes(from) && cities.includes(to)
-  )!;
-
-  return { duration: connection.duration, price: connection.price };
+/**
+ *
+ * @param city current city node
+ * @returns all direct neighbours of a given city
+ */
+export function getNeighbours(city: City) {
+  return DIRECT_CONNECTIONS.filter(({ cities }) => cities.includes(city)).map(
+    ({ cities: [city1, city2] }) => (city1 === city ? city2 : city1)
+  );
 }
 
 export function includeDiscounts(price: number, age: number | null) {
@@ -123,21 +117,22 @@ export function includeDiscounts(price: number, age: number | null) {
   }
 
   if (age < 15) {
-    return twoDecimals(price * 0.33);
+    return toTwoDecimals(price * 0.33);
   } else if (age >= 15 && age <= 26) {
-    return twoDecimals(price * 0.75);
+    return toTwoDecimals(price * 0.75);
   } else if (age >= 75) {
     return 0;
   }
+
   return price;
 }
 
-function twoDecimals(value: number) {
+function toTwoDecimals(value: number) {
   return Number((Math.round(value * 100) / 100).toFixed(2));
 }
 
-export function calculateLuggagePrice(luggage: boolean, from: City, to: City) {
-  if (!luggage) {
+export function calculateLuggagePrice(from: City, to: City) {
+  if (from === to) {
     return 0;
   }
 
@@ -148,5 +143,11 @@ export function toFormattedDuration(duration: number) {
   const hours = Math.floor(duration / 60);
   const minutes = duration % 60;
 
-  return `${hours} hod ${minutes} min`;
+  return `${hours > 0 ? hours + ' hod ' : ''}${minutes} min`;
+}
+
+export function capitalise<T extends string>(text: T): Capitalize<T> {
+  return `${text.charAt(0).toLocaleUpperCase()}${text
+    .slice(1)
+    .toLowerCase()}` as Capitalize<T>;
 }
