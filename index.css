@@ -6,25 +6,69 @@
   --pico-h2-color: #ce377d;
   --pico-h3-color: #ce377d;
   --pico-border-radius: 1rem;
-
 }
 
 b,
 s {
-  color: #2d2e83
+  color: #2d2e83;
 }
 
 th {
   --pico-color: #2d2e83;
 }
 
-select, input:not([type='checkbox']) {
+select,
+input:not([type='checkbox']) {
   width: 200px !important;
 }
 
 #form-group {
+  margin-bottom: 4px;
   display: flex;
-  flex-direction: row;
-  justify-content: left;
   align-items: center;
+  gap: 20px;
+}
+
+input,
+select {
+  margin-left: 8px !important;
+  margin-bottom: 0 !important;
+}
+
+#info-grid {
+  display: grid;
+  grid-template-areas:
+    'map map'
+    'prices-title types-title'
+    'prices-table types-table';
+  grid-template-columns: repeat(2, 1fr);
+  row-gap: 12px;
+  column-gap: 48px;
+}
+
+#info-grid img {
+  grid-area: map;
+  min-height: 500px;
+  height: 45vh;
+  margin: 0 auto;
+}
+
+#info-grid h2:nth-of-type(1) {
+  grid-area: prices-title;
+}
+
+#info-grid table:nth-of-type(1) {
+  grid-area: prices-table;
+}
+
+#info-grid h2:nth-of-type(2) {
+  grid-area: types-title;
+}
+
+#info-grid table:nth-of-type(2) {
+  grid-area: types-table;
+}
+
+#info-grid h2 {
+  margin: 0;
 }

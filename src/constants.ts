@@ -37,4 +37,4 @@ export const SPECIAL_CONNECTIONS: DiscountConnection[] = [
   { cities: ['brno', 'ostrava'], duration: 135, price: 350 },
 ];
 
-export type ConnectionStats = { duration: number; price: number };
+export type ConnectionStats = { duration: number; price: number | null };

@@ -82,24 +82,26 @@ export function getFastestPath(from: City, to: City) {
 export function calculateTicketStats(input: {
   from: City;
   to: City;
-  age: number;
+  age: number | null;
   luggage: boolean;
 }) {
   const { from, to, age, luggage } = input;
-  // TODO fix types for readonly type union -> Final city
 
   const { duration, price } =
-    isFinal(input.from) && isFinal(input.to)
-      ? getDiscountedPath(from as FinalCity, to as FinalCity)
+    isFinal(from) && isFinal(to)
+      ? getDiscountedPath(from, to)
       : getFastestPath(from, to);
 
+  const discountedPrice = includeDiscounts(price, age);
   const finalPrice =
-    includeDiscounts(price, age) + calculateLuggagePrice(luggage, from, to);
+    discountedPrice != null
+      ? discountedPrice + calculateLuggagePrice(luggage, from, to)
+      : null;
 
   return { duration, price: finalPrice };
 }
 
-function isFinal(city: City) {
+function isFinal(city: City): city is FinalCity {
   return ['brno', 'praha', 'ostrava'].includes(city);
 }
 
@@ -115,7 +117,11 @@ export function getDiscountedPath(from: FinalCity, to: FinalCity) {
   return { duration: connection.duration, price: connection.price };
 }
 
-export function includeDiscounts(price: number, age: number) {
+export function includeDiscounts(price: number, age: number | null) {
+  if (age == null) {
+    return null;
+  }
+
   if (age < 15) {
     return twoDecimals(price * 0.33);
   } else if (age >= 15 && age <= 26) {

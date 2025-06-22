@@ -1,6 +1,6 @@
 {
   "name": "trip",
-  "description": "TRain tIcket Prices",
+  "description": "Train Route Information and Prices",
   "private": true,
   "license": "MIT",
   "scripts": {
