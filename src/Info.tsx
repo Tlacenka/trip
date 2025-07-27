@@ -3,7 +3,7 @@ import React from 'react';
 export const Info: React.FC = () => {
   return (
     <div id="info-grid">
-      <img src="assets/map.png" alt="Jizdní trasy" />
+      <img src="/images/map.png" alt="Jizdní trasy" />
       <h2>Typy jízdenek</h2>
       <table>
         <thead>
