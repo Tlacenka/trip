@@ -112,15 +112,17 @@ export function getNeighbours(city: City) {
 }
 
 export function includeDiscounts(price: number, age: number | null) {
-  if (age == null) {
+  if (age == null || age < 0) {
     return null;
   }
 
-  if (age < 15) {
-    return toTwoDecimals(price * 0.33);
-  } else if (age >= 15 && age <= 26) {
-    return toTwoDecimals(price * 0.75);
-  } else if (age >= 75) {
+  if (age > 0 && age < 12) {
+    // BUG 11: Should be until 15 instead of 12
+    return toTwoDecimals(price * 0.5); // BUG 2: should be 67% discount
+    // } else if (age >= 15 && age <= 26) { // BUG 5: Student discount is missing
+    //   return toTwoDecimals(price * 0.75);
+  } else if (age > 75) {
+    // BUG 12: Should include 75
     return 0;
   }
 
@@ -136,7 +138,8 @@ export function calculateLuggagePrice(from: City, to: City) {
     return 0;
   }
 
-  return getNeighbours(from).includes(to) ? 50 : 100;
+  return 100; // BUG 1: should cost only 50 for one stop
+  // return getNeighbours(from).includes(to) ? 50 : 100;
 }
 
 export function toFormattedDuration(duration: number) {

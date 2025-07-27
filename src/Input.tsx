@@ -12,6 +12,7 @@ export const Input: React.FC = () => {
   const [isChecked, setIsChecked] = useState(false);
   const stats = calculateTicketStats({ from, to, age, luggage: isChecked });
 
+  // BUG 8: "Mám zavazadlo" → "Mam zavazadlo"
   return (
     <div>
       <form>
@@ -55,7 +56,7 @@ export const Input: React.FC = () => {
             ></input>
           </label>
           <label>
-            Mám zavazadlo:
+            Mam zavazadlo:
             <input
               type="checkbox"
               id="checkbox"
@@ -74,9 +75,10 @@ export const Input: React.FC = () => {
 export const TicketStats: React.FC<{ stats: ConnectionStats }> = ({
   stats: { price, duration },
 }) => {
+  // BUG 7: when age is missing (price is not calculated yet), undefined appears instead of a dash
   return (
     <p>
-      Cena jízdenky: <strong>{price ?? '-'} Kč</strong>
+      Cena jízdenky: <strong>{price ?? 'undefined'} Kč</strong>
       <br />
       Doba jízdy: <strong>{toFormattedDuration(duration)}</strong>
     </p>

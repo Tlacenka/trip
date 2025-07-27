@@ -32,7 +32,7 @@ describe('calculateTicketStats', () => {
         age: 10,
         luggage: false,
       })
-    ).toStrictEqual({ duration: 45, price: 66 });
+    ).toStrictEqual({ duration: 45, price: 100 }); // BUG 2: discount should be 67%
   });
 
   it('should include lugagge when entered', () => {
@@ -43,7 +43,7 @@ describe('calculateTicketStats', () => {
         age: 28,
         luggage: true,
       })
-    ).toStrictEqual({ duration: 45, price: 250 });
+    ).toStrictEqual({ duration: 45, price: 300 }); // BUG 1: Luggage should cost 50 less
   });
 
   it('should return special price for two final stops', () => {
@@ -141,8 +141,8 @@ describe('getNeighbours', () => {
   });
 
   it('should return all direct train connections for a city with multiple neighbours', () => {
-    expect(getNeighbours('pardubice')).toEqual(
-      expect.arrayContaining(['olomouc', 'praha', 'brno'])
+    expect(getNeighbours('olomouc')).toEqual(
+      expect.arrayContaining(['brno', 'pardubice', 'ostrava'])
     );
   });
 });
@@ -155,21 +155,26 @@ describe('includeDiscounts', () => {
     }
   );
 
-  it.each([15, 26])(
-    'should return 25% discount for students of age %d',
+  // BUG 5: Student discount is missing
+  // it.each([15, 26])(
+  //   'should return 25% discount for students of age %d',
+  //   (age) => {
+  //     expect(includeDiscounts(100, age)).toBe(75);
+  //   }
+  // );
+
+  // BUG 2: Should be 67% discount
+  // BUG 10: Should include newborns
+  // BUG 12: Should be until 15, not 12 excl.
+  it.each([1, 5, 11])(
+    'should return 50% discount for children of age %d',
     (age) => {
-      expect(includeDiscounts(100, age)).toBe(75);
+      expect(includeDiscounts(100, age)).toBe(50);
     }
   );
 
-  it.each([0, 5, 14])(
-    'should return 67% discount for children of age %d',
-    (age) => {
-      expect(includeDiscounts(100, age)).toBe(33);
-    }
-  );
-
-  it.each([75, 100])('should return 0 for seniors of age %d', (age) => {
+  // BUG 11: Should be starting at 75 not 76
+  it.each([76, 100])('should return 0 for seniors of age %d', (age) => {
     expect(includeDiscounts(100, age)).toBe(0);
   });
   it('should return null for missing age', () => {
@@ -178,11 +183,12 @@ describe('includeDiscounts', () => {
 });
 
 describe('calculateLuggagePrice', () => {
-  it('should return 50 when the cities are direct neighbours', () => {
-    expect(calculateLuggagePrice('praha', 'pardubice')).toBe(50);
-  });
+  // BUG 2: This case is omitted, it always costs 100
+  // it('should return 50 when the cities are direct neighbours', () => {
+  //   expect(calculateLuggagePrice('praha', 'pardubice')).toBe(50);
+  // });
 
-  it('should return 10 when the cities are not direct neighbours', () => {
+  it('should return 100 when the cities are not direct neighbours', () => {
     expect(calculateLuggagePrice('praha', 'olomouc')).toBe(100);
   });
 
@@ -220,5 +226,103 @@ describe('capitalise', () => {
 
   it('should return empty string for empty input', () => {
     expect(capitalise('')).toBe('');
+  });
+});
+
+describe('Bugs', () => {
+  it('1 Luggage costs 100 Kč for direct neighbours instead of 50 Kč', () => {
+    expect(calculateLuggagePrice('brno', 'olomouc')).toBe(100);
+  });
+
+  it('2 Discount for children under 15 is 50% instead of 67%', () => {
+    expect(includeDiscounts(100, 10)).toBe(50);
+  });
+
+  it('3 Brno - Ostrava does not get a special discount for two final stops', () => {
+    expect(
+      calculateTicketStats({
+        from: 'ostrava',
+        to: 'brno',
+        age: 30,
+        luggage: false,
+      })
+    ).toStrictEqual({ duration: 135, price: 400 });
+
+    expect(
+      calculateTicketStats({
+        from: 'brno',
+        to: 'ostrava',
+        age: 30,
+        luggage: false,
+      })
+    ).toStrictEqual({ duration: 135, price: 400 });
+  });
+
+  it('4 Brno - Pardubice routes via Olomouc instead of directly', () => {
+    expect(
+      calculateTicketStats({
+        from: 'brno',
+        to: 'pardubice',
+        age: 30,
+        luggage: false,
+      })
+    ).toStrictEqual({ duration: 165, price: 500 });
+
+    expect(
+      calculateTicketStats({
+        from: 'pardubice',
+        to: 'brno',
+        age: 30,
+        luggage: false,
+      })
+    ).toStrictEqual({ duration: 165, price: 500 });
+
+    expect(getNeighbours('brno')).not.toContain('pardubice');
+    expect(getNeighbours('pardubice')).not.toContain('brno');
+  });
+
+  it('6 Student discount is missing', () => {
+    expect(includeDiscounts(100, 15)).toBe(100);
+    expect(includeDiscounts(100, 20)).toBe(100);
+  });
+
+  it('7 Return null price for empty or negative number', () => {
+    expect(includeDiscounts(100, null)).toBeNull();
+    expect(includeDiscounts(100, -5)).toBeNull();
+  });
+
+  it('9 Include Jihlava which has the same location as Pardubice', () => {
+    expect(getNeighbours('jihlava')).toEqual(['pardubice']);
+    expect(
+      calculateTicketStats({
+        from: 'pardubice',
+        to: 'jihlava',
+        age: 30,
+        luggage: false,
+      })
+    ).toStrictEqual({ duration: 0, price: 0 });
+    expect(
+      calculateTicketStats({
+        from: 'praha',
+        to: 'jihlava',
+        age: 30,
+        luggage: false,
+      })
+    ).toStrictEqual({ duration: 60, price: 200 });
+  });
+
+  it('10 Prices newborns (0 years old) at full price', () => {
+    expect(includeDiscounts(100, 0)).toBe(100);
+  });
+
+  it('11 Counts children until the age of 12 (excl.), not 15', () => {
+    expect(includeDiscounts(100, 11)).toBeLessThan(75); // not a student yet
+    expect(includeDiscounts(100, 12)).toBeGreaterThan(50); // not a child anymore
+    expect(includeDiscounts(100, 15)).toBe(100);
+  });
+
+  it('12 Counts seniors starting at the age of 76 instead of 75', () => {
+    expect(includeDiscounts(100, 75)).toBe(100);
+    expect(includeDiscounts(100, 76)).toBe(0);
   });
 });
