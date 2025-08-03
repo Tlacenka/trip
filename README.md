@@ -31,3 +31,4 @@ Bugs are documented in the code and referenced by their number.
 10. When age is 0, it counts full price (newborns are not considered.)
 11. Counts children until the age of 12 instead of 15.
 12. Counts seniors since the age of 76 instead of 75.
+13. Praha - Ostrava has duration 4:45 (via Brno) instead of 3:00 in the special prices section.

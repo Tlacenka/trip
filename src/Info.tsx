@@ -57,7 +57,7 @@ export const Info: React.FC = () => {
           </tr>
           <tr>
             <td>🟢 Praha ↔ Ostrava</td>
-            <td>3:00</td>
+            <td>4:45</td>
             <td>600 Kč</td>
           </tr>
         </tbody>
